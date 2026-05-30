@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🔥 FURNACE FORGE - 溶解炉クラフトゲーム</title>
+  <link rel="stylesheet" href="style.css">
+  <!-- Google Fonts: 工業的×和風 -->
+  <link href="https://fonts.googleapis.com/css2?family=Zen+Antique&family=Share+Tech+Mono&family=Noto+Sans+JP:wght@300;400;700;900&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<!-- ========== ローディング画面 ========== -->
+<div id="loading-screen">
+  <div class="loading-inner">
+    <div class="loading-furnace">🔥</div>
+    <h1>FURNACE FORGE</h1>
+    <p>溶解炉に火を入れています...</p>
+    <div class="loading-bar"><div class="loading-fill"></div></div>
+  </div>
+</div>
+
+<!-- ========== メインラッパー ========== -->
+<div id="app" style="display:none;flex-direction:column;flex:1;min-height:0;">
+
+  <!-- ===== ヘッダーナビゲーション ===== -->
+  <header id="main-header">
+    <div class="header-left">
+      <span class="logo-icon">⚙️</span>
+      <span class="logo-text">FURNACE FORGE</span>
+    </div>
+    <nav class="main-nav">
+      <button class="nav-btn active" data-page="furnace" onclick="App.navigateTo('furnace')">
+        <span class="nav-icon">🔥</span><span class="nav-label">溶解炉</span>
+      </button>
+      <button class="nav-btn" data-page="inventory" onclick="App.navigateTo('inventory')">
+        <span class="nav-icon">🪙</span><span class="nav-label">素材庫</span>
+        <span class="badge" id="inventory-badge">0</span>
+      </button>
+      <button class="nav-btn" data-page="craft" onclick="App.navigateTo('craft')">
+        <span class="nav-icon">🔨</span><span class="nav-label">鍛造台</span>
+      </button>
+      <button class="nav-btn" data-page="collection" onclick="App.navigateTo('collection')">
+        <span class="nav-icon">🏆</span><span class="nav-label">コレクション</span>
+        <span class="badge" id="collection-badge">0</span>
+      </button>
+    </nav>
+    <div class="header-right">
+      <button class="settings-btn" onclick="App.openSettings()" title="設定">⚙</button>
+    </div>
+  </header>
+
+  <!-- ===== ページコンテナ ===== -->
+  <main id="page-container">
+
+    <!-- ===================== 溶解炉ページ ===================== -->
+    <section id="page-furnace" class="page active">
+      <div class="page-title-bar">
+        <h2>🔥 溶解炉</h2>
+        <p class="page-desc">タービン(送風機)を回して炉の温度を上げ、金属を溶かそう</p>
+      </div>
+
+      <div class="furnace-layout" style="flex:1;min-height:0;">
+
+        <!-- 左列：金属選択 -->
+        <div class="furnace-left panel">
+          <h3>🪨 金属を選択</h3>
+          <p class="hint-text">溶かしたい金属を選んでください</p>
+          <div id="metal-list" class="metal-list">
+            <!-- JavaScriptで動的生成 -->
+          </div>
+        </div>
+
+        <!-- 中央：炉本体 -->
+        <div class="furnace-center">
+          <!-- 炉の視覚表示 -->
+          <div class="furnace-visual" id="furnace-visual">
+            <div class="furnace-top"></div>
+            <div class="furnace-body" id="furnace-body">
+              <div class="furnace-glow" id="furnace-glow"></div>
+              <div class="furnace-metal-display" id="furnace-metal-display">
+                <span id="furnace-metal-icon">⬛</span>
+                <span id="furnace-metal-name">金属未選択</span>
+              </div>
+              <!-- 溶岩エフェクト -->
+              <div class="lava-container" id="lava-container">
+                <div class="lava-wave"></div>
+                <div class="lava-wave lava-wave2"></div>
+              </div>
+            </div>
+            <div class="furnace-bottom">
+              <div class="air-pipe" id="air-pipe">
+                <span class="pipe-label">📡 送風管</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 温度計 -->
+          <div class="thermometer-wrap">
+            <div class="thermometer">
+              <div class="thermo-scale">
+                <span id="thermo-target-mark" class="target-mark" style="bottom:0%">▶</span>
+              </div>
+              <div class="thermo-tube">
+                <div class="thermo-fill" id="thermo-fill" style="height:0%"></div>
+              </div>
+            </div>
+            <div class="temp-readout">
+              <span id="current-temp-display">20</span>°C
+              <div class="target-temp-info" id="target-temp-info"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 右列：タービン＆制御 -->
+        <div class="furnace-right panel">
+          <h3>⚙️ タービン送風機</h3>
+          <p class="hint-text">クリックして空気を送り込む！</p>
+
+          <!-- タービンクリックボタン -->
+          <div class="turbine-area">
+            <button id="turbine-btn" class="turbine-btn" onclick="Furnace.clickTurbine()">
+              <div class="turbine-visual" id="turbine-visual">
+                <div class="turbine-blade tb1"></div>
+                <div class="turbine-blade tb2"></div>
+                <div class="turbine-blade tb3"></div>
+                <div class="turbine-blade tb4"></div>
+                <div class="turbine-center-dot"></div>
+              </div>
+              <div class="turbine-label">クリックして送風！</div>
+            </button>
+
+            <!-- クリック統計 -->
+            <div class="click-stats">
+              <div class="stat-item">
+                <span class="stat-label">クリック数</span>
+                <span class="stat-value" id="click-count">0</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-label">風速</span>
+                <span class="stat-value" id="wind-speed">0 m/s</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-label">上昇温度/click</span>
+                <span class="stat-value" id="temp-per-click">+0°C</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 冷却ボタン -->
+          <button class="cool-btn" onclick="Furnace.coolDown()" title="炉を冷やしてリセット">
+            ❄️ 炉を冷却する
+          </button>
+
+          <!-- 難易度選択 -->
+          <div class="difficulty-section">
+            <h4>🎮 難易度</h4>
+            <div class="difficulty-btns">
+              <button class="diff-btn" data-diff="realistic" onclick="App.setDifficulty('realistic')">現実的</button>
+              <button class="diff-btn" data-diff="hard" onclick="App.setDifficulty('hard')">難しい</button>
+              <button class="diff-btn active" data-diff="normal" onclick="App.setDifficulty('normal')">普通</button>
+              <button class="diff-btn" data-diff="easy" onclick="App.setDifficulty('easy')">簡単</button>
+            </div>
+            <p class="diff-desc" id="diff-desc">1クリックで +5°C 上昇（普通モード）</p>
+          </div>
+
+          <!-- 炉の状態メッセージ -->
+          <div class="furnace-status" id="furnace-status">
+            💡 金属を選んでタービンを回そう！
+          </div>
+        </div>
+
+      </div><!-- /furnace-layout -->
+
+      <!-- 溶解完了バナー（隠れている） -->
+      <div id="melt-success-banner" class="melt-banner hidden">
+        <div class="banner-inner">
+          <span class="banner-icon">✨</span>
+          <div class="banner-text">
+            <strong id="banner-metal-name">金属</strong>の溶解に成功！
+            <br><small>素材庫に追加されました</small>
+          </div>
+          <button onclick="App.navigateTo('inventory')" class="banner-btn">素材庫へ →</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== 素材庫ページ ===================== -->
+    <section id="page-inventory" class="page">
+      <div class="page-title-bar">
+        <h2>🪙 素材庫</h2>
+        <p class="page-desc">溶解して得た金属素材の一覧です</p>
+      </div>
+      <div id="inventory-empty" class="empty-state">
+        <div class="empty-icon">🏭</div>
+        <h3>素材がありません</h3>
+        <p>溶解炉で金属を溶かして素材を手に入れよう！</p>
+        <button onclick="App.navigateTo('furnace')" class="action-btn primary">溶解炉へ</button>
+      </div>
+      <div id="inventory-grid" class="inventory-grid" style="display:none;"></div>
+    </section>
+
+    <!-- ===================== 鍛造台ページ ===================== -->
+    <section id="page-craft" class="page">
+      <div class="page-title-bar">
+        <h2>🔨 鍛造台</h2>
+        <p class="page-desc">集めた金属素材を使ってアイテムを作ろう</p>
+      </div>
+
+      <div class="craft-layout">
+        <!-- 左：レシピ一覧 -->
+        <div class="craft-recipes panel">
+          <h3>📜 レシピ一覧</h3>
+          <div id="recipe-list" class="recipe-list">
+            <!-- 動的生成 -->
+          </div>
+        </div>
+
+        <!-- 右：クラフトグリッド -->
+        <div class="craft-main panel">
+          <h3>🛠 クラフト台</h3>
+          <div class="craft-grid-wrap">
+            <!-- 3×3 クラフトグリッド -->
+            <div class="craft-grid" id="craft-grid">
+              <!-- 9セル動的生成 -->
+            </div>
+            <div class="craft-arrow">➜</div>
+            <div class="craft-result">
+              <div class="result-slot" id="result-slot">
+                <span class="result-placeholder">？</span>
+              </div>
+              <button class="craft-execute-btn" id="craft-execute-btn" onclick="Craft.execute()" disabled>
+                🔨 作成する
+              </button>
+            </div>
+          </div>
+          <p class="craft-hint" id="craft-hint">レシピを選ぶか、グリッドに素材を配置してください</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== コレクションページ ===================== -->
+    <section id="page-collection" class="page">
+      <div class="page-title-bar">
+        <h2>🏆 コレクション</h2>
+        <p class="page-desc">鍛造して作ったアイテムのコレクションです</p>
+      </div>
+      <div id="collection-empty" class="empty-state">
+        <div class="empty-icon">🎖️</div>
+        <h3>コレクションが空です</h3>
+        <p>鍛造台でアイテムを作ってコレクションを増やそう！</p>
+        <button onclick="App.navigateTo('craft')" class="action-btn primary">鍛造台へ</button>
+      </div>
+      <div id="collection-grid" class="collection-grid" style="display:none;"></div>
+    </section>
+
+  </main><!-- /page-container -->
+
+</div><!-- /app -->
+
+<!-- ========== 設定モーダル ========== -->
+<div id="settings-modal" class="modal-overlay hidden" onclick="App.closeSettings(event)">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <h3>⚙️ 設定</h3>
+      <button class="modal-close" onclick="App.closeSettings()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="setting-item">
+        <label>難易度</label>
+        <select id="settings-difficulty" onchange="App.setDifficulty(this.value)">
+          <option value="realistic">現実的（非常に難しい）</option>
+          <option value="hard">難しい</option>
+          <option value="normal" selected>普通</option>
+          <option value="easy">簡単</option>
+        </select>
+      </div>
+      <div class="setting-item">
+        <label>エフェクト</label>
+        <input type="checkbox" id="setting-effects" checked onchange="App.toggleEffects(this.checked)">
+        <span>視覚エフェクトを有効にする</span>
+      </div>
+      <hr>
+      <div class="setting-item danger-zone">
+        <label>⚠️ データリセット</label>
+        <button class="danger-btn" onclick="App.resetGame()">全データをリセット</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== アイテム詳細モーダル ========== -->
+<div id="item-modal" class="modal-overlay hidden" onclick="App.closeItemModal(event)">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <h3 id="item-modal-title">アイテム詳細</h3>
+      <button class="modal-close" onclick="App.closeItemModal()">✕</button>
+    </div>
+    <div class="modal-body" id="item-modal-body"></div>
+  </div>
+</div>
+
+<!-- ========== トースト通知 ========== -->
+<div id="toast-container"></div>
+
+<!-- ========== JSファイル読み込み ========== -->
+<script src="data.js"></script>
+<script src="game.js"></script>
+</body>
+</html>
