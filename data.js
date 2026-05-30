@@ -45,28 +45,32 @@ const DIFFICULTY_SETTINGS = {
     description: '1クリックで +1°C（実際の送風をイメージ）',
     tempPerClick: 1,
     coolRate: 3.0,     // 冷却が速い
-    baseTemp: 20
+    baseTemp: 20,
+    meltReward: 4      // 溶解成功時の入手個数
   },
   hard: {
     label: '難しい',
     description: '1クリックで +2°C（かなり大変）',
     tempPerClick: 2,
     coolRate: 1.5,
-    baseTemp: 20
+    baseTemp: 20,
+    meltReward: 3      // 溶解成功時の入手個数
   },
   normal: {
     label: '普通',
     description: '1クリックで +5°C（ゲームとして楽しめる）',
     tempPerClick: 5,
     coolRate: 0.8,
-    baseTemp: 20
+    baseTemp: 20,
+    meltReward: 2      // 溶解成功時の入手個数
   },
   easy: {
     label: '簡単',
     description: '1クリックで +12°C（サクサク進める）',
     tempPerClick: 12,
     coolRate: 0.3,
-    baseTemp: 20
+    baseTemp: 20,
+    meltReward: 1      // 溶解成功時の入手個数
   }
 };
 

@@ -445,11 +445,15 @@ const Furnace = {
   completeMelt(metal) {
     this.isMelted = true;
 
-    // インベントリに追加
+    // 難易度に応じた入手個数を取得
+    const diffCfg = DIFFICULTY_SETTINGS[App.saveData.difficulty] || DIFFICULTY_SETTINGS.normal;
+    const reward = diffCfg.meltReward || 1;
+
+    // インベントリに追加（難易度別個数）
     if (!App.saveData.inventory[metal.id]) {
       App.saveData.inventory[metal.id] = 0;
     }
-    App.saveData.inventory[metal.id]++;
+    App.saveData.inventory[metal.id] += reward;
     App.saveData.totalMelts = (App.saveData.totalMelts || 0) + 1;
     SaveData.save(App.saveData);
 
@@ -486,6 +490,7 @@ const Furnace = {
         bannerEl.style.animation = '';
       }
       document.getElementById('banner-metal-name').textContent = metal.name;
+      document.getElementById('banner-reward-qty').textContent = `×${reward} 個 素材庫に追加されました`;
     }, 150);
 
     // メタルリストの在庫更新
@@ -499,10 +504,10 @@ const Furnace = {
     App.updateBadges();
 
     // ステータス
-    this.updateStatus(`✨ ${metal.name} の溶解に成功！素材庫に追加されました。`);
+    this.updateStatus(`✨ ${metal.name} の溶解に成功！×${reward} 個が素材庫に追加されました。`);
 
     // 成功通知（大きく）
-    App.toast(`🔥🔥 ${metal.name} の溶解成功！素材庫に追加されました 🔥🔥`, 'success');
+    App.toast(`🔥🔥 ${metal.name} の溶解成功！×${reward} 個が素材庫に追加されました 🔥🔥`, 'success');
   },
 
   /** 炉を冷却（リセット） */

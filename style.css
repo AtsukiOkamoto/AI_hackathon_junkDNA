@@ -226,6 +226,8 @@ body {
   width: 100%;
   margin: 0 auto;
   padding: 16px 20px;
+  /* 固定バナー表示時にコンテンツが隠れないよう余白（バナーなし時は無駄にならないよう JS で制御） */
+  padding-bottom: 80px;
 }
 
 /* カスタムスクロールバー（常に細く） */
@@ -691,23 +693,30 @@ body {
   line-height: 1.5;
 }
 
-/* ===== 溶解成功バナー（改善版） ===== */
+/* ===== 溶解成功バナー（画面下部 fixed 固定・常時表示） ===== */
 .melt-banner {
-  flex-shrink: 0;
-  margin-top: 8px;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1500;          /* トースト(2000)の下、モーダル(1000)の上 */
   padding: 0;
-  border-radius: 14px;
   overflow: hidden;
-  box-shadow: 0 0 30px rgba(76,175,106,0.4), 0 0 60px rgba(255,165,0,0.2);
-  animation: melt-success-in 0.5s cubic-bezier(0.175,0.885,0.32,1.275) forwards;
-  position: relative;
+  box-shadow: 0 -4px 30px rgba(76,175,106,0.4), 0 -2px 60px rgba(255,165,0,0.15);
+  animation: melt-banner-slidein 0.45s cubic-bezier(0.175,0.885,0.32,1.275) forwards;
 }
-.melt-banner.hidden { display: none; }
+/* hidden 時は画面外下に退避 */
+.melt-banner.hidden {
+  transform: translateY(100%);
+  pointer-events: none;
+  visibility: hidden;
+  animation: none;
+}
 
-@keyframes melt-success-in {
-  0%   { opacity: 0; transform: scale(0.85) translateY(20px); }
-  60%  { transform: scale(1.04) translateY(-3px); }
-  100% { opacity: 1; transform: scale(1) translateY(0); }
+@keyframes melt-banner-slidein {
+  0%   { transform: translateY(100%); opacity: 0; }
+  60%  { transform: translateY(-4px);  opacity: 1; }
+  100% { transform: translateY(0);     opacity: 1; }
 }
 
 /* バナー背景の煌めきアニメ */
@@ -739,15 +748,18 @@ body {
   display: flex;
   align-items: center;
   gap: 14px;
-  padding: 18px 20px;
+  padding: 14px 24px;
   background: linear-gradient(135deg, #1a3320 0%, #1c2f10 50%, #2a1e08 100%);
-  border: 2px solid var(--success);
+  border-top: 2px solid var(--success);
+  max-width: 1400px;
+  margin: 0 auto;
 }
 
 .banner-icon {
-  font-size: 2.4rem;
+  font-size: 2rem;
   animation: banner-icon-pop 0.5s 0.3s cubic-bezier(0.175,0.885,0.32,1.275) both;
-  filter: drop-shadow(0 0 12px rgba(255,200,50,0.8));
+  filter: drop-shadow(0 0 10px rgba(255,200,50,0.8));
+  flex-shrink: 0;
 }
 @keyframes banner-icon-pop {
   0%   { transform: scale(0) rotate(-20deg); }
@@ -758,26 +770,27 @@ body {
 .banner-text { flex: 1; }
 .banner-text strong {
   color: var(--success);
-  font-size: 1.1rem;
-  display: block;
+  font-size: 1rem;
+  display: inline;
   text-shadow: 0 0 10px rgba(76,175,106,0.6);
 }
-.banner-text small { color: var(--text-secondary); font-size: 0.8rem; }
+.banner-text small { color: var(--text-secondary); font-size: 0.78rem; display: block; margin-top: 2px; }
 
 .banner-btn {
-  padding: 10px 18px;
+  padding: 9px 16px;
   background: linear-gradient(135deg, var(--success), #38a050);
   border: none;
   border-radius: 10px;
   color: white;
   font-family: var(--font-main);
-  font-size: 0.88rem;
+  font-size: 0.85rem;
   cursor: pointer;
   font-weight: 700;
   transition: all var(--trans-fast);
   white-space: nowrap;
   box-shadow: 0 4px 12px rgba(76,175,106,0.4);
   touch-action: manipulation;
+  flex-shrink: 0;
 }
 .banner-btn:hover {
   background: linear-gradient(135deg, #5dc87e, #44b85e);
@@ -1470,6 +1483,13 @@ body {
     grid-template-rows: repeat(3, 64px);
   }
   .craft-cell { width: 64px; height: 64px; }
+
+  .melt-banner .banner-inner {
+    padding: 10px 14px;
+    gap: 10px;
+  }
+  .banner-icon { font-size: 1.6rem; }
+  .banner-text strong { font-size: 0.9rem; }
 
   .melt-banner .banner-inner {
     flex-wrap: wrap;

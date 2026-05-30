@@ -173,16 +173,7 @@
       </div><!-- /furnace-layout -->
 
       <!-- 溶解完了バナー（隠れている） -->
-      <div id="melt-success-banner" class="melt-banner hidden">
-        <div class="banner-inner">
-          <span class="banner-icon">✨</span>
-          <div class="banner-text">
-            <strong id="banner-metal-name">金属</strong>の溶解に成功！
-            <br><small>素材庫に追加されました</small>
-          </div>
-          <button onclick="App.navigateTo('inventory')" class="banner-btn">素材庫へ →</button>
-        </div>
-      </div>
+      <!-- ※ バナー本体は body 直下の fixed 要素に移動 -->
     </section>
 
     <!-- ===================== 素材庫ページ ===================== -->
@@ -297,6 +288,18 @@
       <button class="modal-close" onclick="App.closeItemModal()">✕</button>
     </div>
     <div class="modal-body" id="item-modal-body"></div>
+  </div>
+</div>
+
+<!-- ========== 溶解成功バナー（画面下部 fixed・常時表示） ========== -->
+<div id="melt-success-banner" class="melt-banner hidden">
+  <div class="banner-inner">
+    <span class="banner-icon">✨</span>
+    <div class="banner-text">
+      <strong id="banner-metal-name">金属</strong>の溶解に成功！
+      <br><small id="banner-reward-qty">素材庫に追加されました</small>
+    </div>
+    <button onclick="App.navigateTo('inventory')" class="banner-btn">素材庫へ →</button>
   </div>
 </div>
 
